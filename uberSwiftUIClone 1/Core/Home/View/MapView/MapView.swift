@@ -11,6 +11,7 @@ import MapKit
 struct MapView: UIViewRepresentable {
     let mapView = MKMapView()
     let locationManager = LocationManager()
+    @StateObject var viewModel = LocationSearchViewModel()
     func makeUIView(context: Context) -> some UIView {
         mapView.delegate = context.coordinator
         mapView.isRotateEnabled = false

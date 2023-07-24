@@ -8,13 +8,61 @@
 import SwiftUI
 
 struct LocationSearchView: View {
+    @State private var startLocationText: String = ""
+    @Binding var showLocationSearchView: Bool
+    @StateObject var viewModel = LocationSearchViewModel()
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            HStack {
+                VStack {
+                    Circle()
+                        .fill(Color(.systemGray))
+                        .frame(width: 6, height: 6)
+                    Rectangle()
+                        .fill(Color(.systemGray))
+                        .frame(width: 1, height: 24)
+                    Rectangle()
+                        .fill(.black)
+                        .frame(width: 6, height: 6)
+                }
+                VStack {
+                    TextField("Curent Location", text: $startLocationText)
+                        .frame(height: 32)
+                        .background(Color(.systemGroupedBackground))
+                        .padding(.trailing)
+                    TextField("Where to?", text: $viewModel.queryFragment)
+                        .frame(height: 32)
+                        .background(Color(.systemGray4))
+                        .padding(.trailing)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 64)
+            Divider()
+                .padding(.vertical)
+            ScrollView {
+                VStack(alignment: .leading) {
+                    ForEach(viewModel.results, id: \.self) { result in
+                        LocationSearchCell(
+                            title: result.title,
+                            subtitle: result.subtitle
+                        )
+                        .onTapGesture {
+                            withAnimation(.spring()) {
+                                viewModel.selectLocation(result.title)
+                                showLocationSearchView.toggle()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .background(.white)
     }
 }
 
 struct LocationSearchView_Previews: PreviewProvider {
     static var previews: some View {
-        LocationSearchView()
+        LocationSearchView(showLocationSearchView: .constant(true))
     }
 }

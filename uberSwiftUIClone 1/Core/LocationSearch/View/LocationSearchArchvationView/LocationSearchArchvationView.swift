@@ -26,7 +26,7 @@ struct LocationSearchArchvationView: View {
     }
 }
 
-struct LocationSearchView_Previews: PreviewProvider {
+struct LocationSearchArchvationView_Previews: PreviewProvider {
     static var previews: some View {
         LocationSearchArchvationView()
     }

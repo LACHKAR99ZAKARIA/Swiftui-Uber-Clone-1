@@ -15,6 +15,7 @@ struct LocationSearchArchvationView: View {
                 .frame(width: 8, height: 8)
                 .padding(.horizontal)
             Text("Wher to?")
+                .foregroundColor(.black)
             Spacer()
         }
         .frame(width: UIScreen.main.bounds.width - 64, height: 50 )

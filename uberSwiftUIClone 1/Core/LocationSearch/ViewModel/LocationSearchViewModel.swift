@@ -11,7 +11,7 @@ import MapKit
 class LocationSearchViewModel: NSObject, ObservableObject {
     // MARK:  Proprietés
     @Published var results = [MKLocalSearchCompletion]()
-    @Published var selectedLocation: String?
+    @Published var selectedLocationCoordinate: CLLocationCoordinate2D?
     private let searchCompleter = MKLocalSearchCompleter()
     var queryFragment: String = "" {
         didSet {
@@ -25,8 +25,26 @@ class LocationSearchViewModel: NSObject, ObservableObject {
         searchCompleter.queryFragment = queryFragment
     }
     // MARK:  Helpers
-    func selectLocation(_ location: String) {
-        self.selectedLocation = location
+    func selectLocation(_ localSearch: MKLocalSearchCompletion) {
+//        self.selectedLocation = location
+        locationSearch(forLocalSearchComplition: localSearch) { responce, error in
+            if let error = error {
+                print("\(error)")
+                return
+            }
+            guard let item = responce?.mapItems.first else {
+                return
+            }
+            let coordinate = item.placemark.coordinate
+            self.selectedLocationCoordinate = coordinate
+//            print("coordinate : \(coordinate)")
+        }
+    }
+    func locationSearch(forLocalSearchComplition localSearch: MKLocalSearchCompletion, completion: @escaping MKLocalSearch.CompletionHandler) {
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.naturalLanguageQuery = localSearch.title.appending(localSearch.subtitle)
+        let search = MKLocalSearch(request: searchRequest)
+        search.start(completionHandler: completion)
     }
 }
 

@@ -10,10 +10,9 @@ import MapKit
 
 struct MapView: UIViewRepresentable {
     let mapView = MKMapView()
-    let locationManager = LocationManager()
+    let locationManager = LocationManager.shared
     @Binding var mapState: MapViewStat
-    @EnvironmentObject var locationViewModel: LocationSearchViewModel
-    
+    @EnvironmentObject var viewModel: LocationSearchViewModel
     func makeUIView(context: Context) -> some UIView {
         mapView.delegate = context.coordinator
         mapView.isRotateEnabled = false
@@ -30,8 +29,7 @@ struct MapView: UIViewRepresentable {
         case .searchingForLocation :
             break
         case .locationSelected :
-            context.coordinator.clearMapViewAndRecentUserLocation()
-            if let coordinate = locationViewModel.selectedLocationCoordinate {
+            if let coordinate = viewModel.selectedUberLocation?.coordination {
     //            print("selected location: \(coordinate)")
                 context.coordinator.addAndSelectAnnotation(withCoordinate: coordinate)
                 context.coordinator.configurePolyline(withDestinationCoordinate: coordinate)
@@ -85,27 +83,12 @@ extension MapView {
             guard let userLocationCoordinate = self.userLocationCoordinate else {
                 return
             }
-            getDestinationRoute(from: userLocationCoordinate, to: coordinate) { route in
+            parent.viewModel.getDestinationRoute(from: userLocationCoordinate, to: coordinate) { route in
                 self.parent.mapView.addOverlay(route.polyline)
-            }
-        }
-        // MARK:  get route
-        func getDestinationRoute(from userLocation: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D, completion: @escaping(MKRoute) -> Void) {
-            let userPlacement = MKPlacemark(coordinate: userLocation)
-            let destPlacement = MKPlacemark(coordinate: destination)
-            let request = MKDirections.Request()
-            request.source = MKMapItem(placemark: userPlacement)
-            request.destination = MKMapItem(placemark: destPlacement)
-            let direction = MKDirections(request: request)
-            direction.calculate { respoce, error in
-                if let error = error {
-                    print("Debug Faild: \(error)")
-                    return
-                }
-                guard let route = respoce?.routes.first else {
-                    return
-                }
-                completion(route)
+                // MARK:  map Size
+                let rec = self.parent.mapView.mapRectThatFits(route.polyline.boundingMapRect, edgePadding: .init(
+                    top: 64, left: 34, bottom: 500, right: 32))
+                self.parent.mapView.setRegion(MKCoordinateRegion(rec), animated: true)
             }
         }
         func clearMapViewAndRecentUserLocation() {

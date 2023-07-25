@@ -22,7 +22,7 @@ struct LocationSearchView: View {
                         .fill(Color(.systemGray))
                         .frame(width: 1, height: 24)
                     Rectangle()
-                        .fill(Color(.systemGroupedBackground))
+                        .fill(Color(.tertiarySystemGroupedBackground))
                         .frame(width: 6, height: 6)
                 }
                 VStack {
